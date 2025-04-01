@@ -1,0 +1,24 @@
+name: Branch Protection
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  check-direct-push:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check if push is from PR
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main' && github.event.created == false
+        run: |
+          PR_URL=$(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+            "https://api.github.com/repos/${{ github.repository }}/commits/${{ github.sha }}/pulls" | \
+            jq -r '.[0].html_url // ""')
+          
+          if [ -z "$PR_URL" ]; then
+            echo "Error: Direct pushes to main branch are not allowed. Please create a pull request instead."
+            exit 1
+          else
+            echo "This push is from a merged pull request: $PR_URL"
+          fi 
