@@ -2,8 +2,8 @@
  * @fileoverview
  * Main entry point for the GraphQL Query Optimizer library.
  */
-import createSelectionObject, { SelectionObject, SelectionObjectOptions } from './createSelectionObject';
-import { buildQuery, BuildQueryOptions } from './buildQuery';
+import { buildQuery } from './buildQuery';
+import { createSelectionObject, SelectionObject, SelectionObjectOptions } from './createSelectionObject';
 
 /**
  * Type for selection modifier function
@@ -11,38 +11,21 @@ import { buildQuery, BuildQueryOptions } from './buildQuery';
 export type SelectionModifier = (selection: SelectionObject) => void;
 
 /**
- * Creates a selection object from a GraphQL schema and builds a query.
- * This is a convenience method that combines createSelectionObject and buildQuery.
- *
+ * Creates an optimized GraphQL query by allowing you to specify which fields to include.
+ * 
  * @param schemaSDL - A string containing a valid GraphQL schema (SDL).
  * @param selectionModifier - A function that modifies the selection object.
- * @param options - Options for customizing the selection object and query generation.
- * @return A valid GraphQL query string.
- * @throws {Error} If schemaSDL is invalid or selectionModifier is not a function.
+ * @param options - Options for customizing the query generation.
+ * @returns A valid GraphQL query string.
  */
-function createOptimizedQuery(
+export function createOptimizedQuery(
   schemaSDL: string,
-  selectionModifier: SelectionModifier,
-  options: SelectionObjectOptions & BuildQueryOptions = {}
+  selectionModifier: (selection: SelectionObject) => void,
+  options: SelectionObjectOptions = {}
 ): string {
-  if (typeof selectionModifier !== 'function') {
-    throw new Error('selectionModifier must be a function');
-  }
-  
   const selection = createSelectionObject(schemaSDL, options);
-  
-  // Allow the user to modify the selection object
   selectionModifier(selection);
-  
-  // Build the query with the modified selection
-  return buildQuery(schemaSDL, selection, options);
+  return buildQuery(schemaSDL, selection);
 }
 
-export {
-  createSelectionObject,
-  buildQuery,
-  createOptimizedQuery,
-  SelectionObject,
-  SelectionObjectOptions,
-  BuildQueryOptions
-}; 
+export { createSelectionObject, buildQuery, SelectionObject, SelectionObjectOptions }; 

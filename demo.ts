@@ -9,24 +9,14 @@ import {
   SelectionObject
 } from './src';
 
-// A sample GraphQL schema with various type constructs
-const schemaSDL = `
+// Example schema with posts
+const schema = `
   type Query {
-    user(id: ID!): User
+    user: User
     users: [User!]!
-    search(term: String!): SearchResult
+    search: SearchResult
     posts: [Post!]!
-    product(id: ID!): Product
-  }
-
-  type Mutation {
-    createUser(input: UserInput!): User
-    updateUser(id: ID!, input: UserInput!): User
-  }
-
-  input UserInput {
-    name: String!
-    email: String!
+    post(id: ID!): Post
   }
 
   type User {
@@ -34,15 +24,7 @@ const schemaSDL = `
     name: String!
     email: String
     address: Address
-    posts: [Post!]
-    role: Role
-  }
-
-  type Address {
-    street: String
-    city: String
-    country: String
-    postalCode: String
+    posts: [Post!]!
   }
 
   type Post {
@@ -50,119 +32,274 @@ const schemaSDL = `
     title: String!
     content: String
     author: User!
-    comments: [Comment!]
-    tags: [String!]
+    comments: [Comment!]!
+    createdAt: String
+    updatedAt: String
   }
 
   type Comment {
     id: ID!
-    text: String!
+    content: String!
     author: User!
+    createdAt: String
   }
 
-  enum Role {
-    ADMIN
-    USER
-    GUEST
+  type Address {
+    street: String
+    city: String
+    country: String
+    zipCode: String
   }
 
   union SearchResult = User | Post
-
-  interface Product {
-    id: ID!
-    name: String!
-    price: Float!
-  }
-
-  type PhysicalProduct implements Product {
-    id: ID!
-    name: String!
-    price: Float!
-    weight: Float
-    dimensions: String
-  }
-
-  type DigitalProduct implements Product {
-    id: ID!
-    name: String!
-    price: Float!
-    downloadUrl: String
-    fileSize: String
-  }
 `;
 
-// Example 1: Create a selection object and manually toggle fields
-// console.log('Example 1: Manual field selection');
-// const selectionObject = createSelectionObject(schemaSDL);
-// selectionObject.user = { id: true, name: true, email: true };
-// selectionObject.posts = { id: true, title: true };
+console.log('Example 1: Manual field selection');
+const selection = createSelectionObject(schema, { includeTypename: true });
+selection.user = {
+  id: true,
+  name: true,
+  email: true
+};
+selection.users = {
+  address: {
+    country: true
+  },
+  posts: {
+    author: {
+      name: true
+    },
+    comments: {
+      author: {
+        name: true
+      }
+    }
+  }
+};
+selection.search = {
+  __typename: true,
+  on_User: {
+    address: {
+      country: true
+    },
+    posts: {
+      author: {
+        name: true
+      },
+      comments: {
+        author: {
+          name: true
+        }
+      }
+    }
+  },
+  on_Post: {
+    author: {
+      address: {
+        country: true
+      },
+      posts: {
+        title: true
+      }
+    },
+    comments: {
+      author: {
+        address: {
+          country: true
+        },
+        posts: {
+          title: true
+        }
+      }
+    }
+  }
+};
+selection.posts = {
+  id: true,
+  title: true
+};
+console.log(buildQuery(schema, selection));
 
-// const query1 = buildQuery(schemaSDL, selectionObject);
-// console.log(query1);
-// console.log();
+console.log('\nExample 2: Using createOptimizedQuery');
+const query2 = createOptimizedQuery(schema, (selection) => {
+  selection.user = {
+    address: {
+      country: true
+    },
+    posts: {
+      author: {
+        name: true
+      },
+      comments: {
+        author: {
+          name: true
+        }
+      }
+    }
+  };
+  selection.users = {
+    id: true,
+    name: true,
+    address: {
+      country: true
+    }
+  };
+  selection.search = {
+    __typename: true,
+    on_User: {
+      address: {
+        country: true
+      },
+      posts: {
+        author: {
+          name: true
+        },
+        comments: {
+          author: {
+            name: true
+          }
+        }
+      }
+    },
+    on_Post: {
+      author: {
+        address: {
+          country: true
+        },
+        posts: {
+          title: true
+        }
+      },
+      comments: {
+        author: {
+          address: {
+            country: true
+          },
+          posts: {
+            title: true
+          }
+        }
+      }
+    }
+  };
+  selection.posts = {
+    author: {
+      address: {
+        country: true
+      },
+      posts: {
+        title: true
+      }
+    },
+    comments: {
+      author: {
+        address: {
+          country: true
+        },
+        posts: {
+          title: true
+        }
+      }
+    }
+  };
+});
+console.log(query2);
 
-// // Example 2: Use the convenience function to create an optimized query
-// console.log('Example 2: Using createOptimizedQuery');
-// const query2 = createOptimizedQuery(schemaSDL, (selection) => {
-//   selection.users = { 
-//     id: true, 
-//     name: true, 
-//     address: { 
-//       city: false, 
-//       country: true 
-//     } 
-//   };
-// });
-// console.log(query2);
-// console.log();
+console.log('\nExample 3: Post-specific queries');
+const postQuery = createOptimizedQuery(schema, (selection) => {
+  selection.post = {
+    id: true,
+    title: true,
+    content: true,
+    author: {
+      name: true,
+      email: true
+    },
+    comments: {
+      content: true,
+      author: {
+        name: true
+      },
+      createdAt: false
+    },
+    createdAt: true,
+    updatedAt: true
+  };
+});
+console.log(postQuery);
 
-// // Example 3: Interface with inline fragments
-// console.log('Example 3: Interface with inline fragments');
-// const interfaceSelection = createSelectionObject(schemaSDL, { includeTypename: true });
-// interfaceSelection.product = {
-//   __typename: true,
-//   id: true,
-//   name: true,
-//   price: true,
-//   on_PhysicalProduct: {
-//     weight: true
-//   },
-//   on_DigitalProduct: {
-//     downloadUrl: true
-//   }
-// };
+console.log('\nExample 4: Posts list with nested data');
+const postsListQuery = createOptimizedQuery(schema, (selection) => {
+  selection.posts = {
+    id: true,
+    title: true,
+    content: true,
+    author: {
+      name: true,
+      email: true,
+      address: {
+        country: true
+      }
+    },
+    comments: {
+      content: true,
+      author: {
+        name: true,
+        email: true
+      },
+      createdAt: true
+    },
+    createdAt: true,
+    updatedAt: true
+  };
+});
+console.log(postsListQuery);
 
-// const query3 = buildQuery(schemaSDL, interfaceSelection);
-// console.log(query3);
-// console.log();
+console.log('\nExample 5: Union type');
+const unionQuery = createOptimizedQuery(schema, (selection) => {
+  selection.search = {
+    __typename: true,
+    on_User: {
+      name: true
+    },
+    on_Post: {
+      id: true,
+      title: true
+    }
+  };
+});
+console.log(unionQuery);
 
-// // Example 4: Union type
-// console.log('Example 4: Union type');
-// const unionSelection = createSelectionObject(schemaSDL, { includeTypename: true });
-// unionSelection.search = {
-//   __typename: true,
-//   on_User: {
-//     id: false,
-//     name: true
-//   },
-//   on_Post: {
-//     id: true,
-//     title: true
-//   }
-// };
+console.log('\nExample 6: Using createSelectionObject for specific post query');
+// First, create the selection object with all fields set to false
+const postSelection = createSelectionObject(schema, { includeTypename: true });
+console.log("postSelection========================>", postSelection);
+// Now, let's modify the selection for a specific post query
+// We'll only select id, title, content, and author's name, address.country
+postSelection.post = {
+  id: true,
+  title: true,
+  content: true,
+  author: {
+    name: true,
+    email: true,
+  },
+  comments: {
+    content: true,
+    author: {
+      name: true,
+      email: true,
+      address: {
+        country: false,
+        city: true,
+        street: true,
+        zipCode: true
+      }
+    }
+  }
+};
 
-// const query4 = buildQuery(schemaSDL, unionSelection);
-// console.log(query4);
-// console.log();
-
-// // Example 5: Mutation
-// console.log('Example 5: Mutation');
-// const mutationSelection = createSelectionObject(schemaSDL);
-// // Simulate a root mutation object
-// mutationSelection.createUser = { id: true, name: true, email: true };
-
-// const query5 = buildQuery(schemaSDL, mutationSelection, { 
-//   operationType: 'mutation',
-//   operationName: 'CreateNewUser'
-// });
-// console.log(query5); 
+// Build the query using the modified selection
+const specificPostQuery = buildQuery(schema, postSelection);
+console.log('Generated query for specific post:');
+console.log("specificPostQuery========================>", specificPostQuery); 
