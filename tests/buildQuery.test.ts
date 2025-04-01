@@ -3,7 +3,7 @@
  * Tests for the buildQuery function.
  */
 import { buildQuery, buildFieldSelections, getUnwrappedType } from '../src/buildQuery';
-import createSelectionObject, { SelectionObject } from '../src/createSelectionObject';
+import { createSelectionObject, SelectionObject } from '../src/createSelectionObject';
 import { buildSchema, GraphQLObjectType, GraphQLType, GraphQLSchema } from 'graphql';
 import { describe, test, expect, beforeAll } from '@jest/globals';
 
@@ -158,7 +158,7 @@ describe('buildQuery', () => {
     
     // Remove whitespace for easier comparison
     const normalizedQuery = query.replace(/\s+/g, ' ').trim();
-    expect(normalizedQuery).toContain('search {');
+    expect(normalizedQuery).toContain('search(term: "default") {');
     expect(normalizedQuery).toContain('__typename');
     expect(normalizedQuery).toContain('... on User { id name }');
     expect(normalizedQuery).toContain('... on Post { id title }');
