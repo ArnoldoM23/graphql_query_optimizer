@@ -92,77 +92,77 @@ const schemaSDL = `
 `;
 
 // Example 1: Create a selection object and manually toggle fields
-console.log('Example 1: Manual field selection');
-const selectionObject = createSelectionObject(schemaSDL);
-selectionObject.user = { id: true, name: true, email: true };
-selectionObject.posts = { id: true, title: true };
+// console.log('Example 1: Manual field selection');
+// const selectionObject = createSelectionObject(schemaSDL);
+// selectionObject.user = { id: true, name: true, email: true };
+// selectionObject.posts = { id: true, title: true };
 
-const query1 = buildQuery(schemaSDL, selectionObject);
-console.log(query1);
-console.log();
+// const query1 = buildQuery(schemaSDL, selectionObject);
+// console.log(query1);
+// console.log();
 
-// Example 2: Use the convenience function to create an optimized query
-console.log('Example 2: Using createOptimizedQuery');
-const query2 = createOptimizedQuery(schemaSDL, (selection) => {
-  selection.users = { 
-    id: true, 
-    name: true, 
-    address: { 
-      city: true, 
-      country: true 
-    } 
-  };
-});
-console.log(query2);
-console.log();
+// // Example 2: Use the convenience function to create an optimized query
+// console.log('Example 2: Using createOptimizedQuery');
+// const query2 = createOptimizedQuery(schemaSDL, (selection) => {
+//   selection.users = { 
+//     id: true, 
+//     name: true, 
+//     address: { 
+//       city: false, 
+//       country: true 
+//     } 
+//   };
+// });
+// console.log(query2);
+// console.log();
 
-// Example 3: Interface with inline fragments
-console.log('Example 3: Interface with inline fragments');
-const interfaceSelection = createSelectionObject(schemaSDL, { includeTypename: true });
-interfaceSelection.product = {
-  __typename: true,
-  id: true,
-  name: true,
-  price: true,
-  on_PhysicalProduct: {
-    weight: true
-  },
-  on_DigitalProduct: {
-    downloadUrl: true
-  }
-};
+// // Example 3: Interface with inline fragments
+// console.log('Example 3: Interface with inline fragments');
+// const interfaceSelection = createSelectionObject(schemaSDL, { includeTypename: true });
+// interfaceSelection.product = {
+//   __typename: true,
+//   id: true,
+//   name: true,
+//   price: true,
+//   on_PhysicalProduct: {
+//     weight: true
+//   },
+//   on_DigitalProduct: {
+//     downloadUrl: true
+//   }
+// };
 
-const query3 = buildQuery(schemaSDL, interfaceSelection);
-console.log(query3);
-console.log();
+// const query3 = buildQuery(schemaSDL, interfaceSelection);
+// console.log(query3);
+// console.log();
 
-// Example 4: Union type
-console.log('Example 4: Union type');
-const unionSelection = createSelectionObject(schemaSDL, { includeTypename: true });
-unionSelection.search = {
-  __typename: true,
-  on_User: {
-    id: true,
-    name: true
-  },
-  on_Post: {
-    id: true,
-    title: true
-  }
-};
+// // Example 4: Union type
+// console.log('Example 4: Union type');
+// const unionSelection = createSelectionObject(schemaSDL, { includeTypename: true });
+// unionSelection.search = {
+//   __typename: true,
+//   on_User: {
+//     id: false,
+//     name: true
+//   },
+//   on_Post: {
+//     id: true,
+//     title: true
+//   }
+// };
 
-const query4 = buildQuery(schemaSDL, unionSelection);
-console.log(query4);
-console.log();
+// const query4 = buildQuery(schemaSDL, unionSelection);
+// console.log(query4);
+// console.log();
 
-// Example 5: Mutation
-console.log('Example 5: Mutation');
-const mutationSelection = createSelectionObject(schemaSDL);
-// Simulate a root mutation object
-mutationSelection.createUser = { id: true, name: true, email: true };
+// // Example 5: Mutation
+// console.log('Example 5: Mutation');
+// const mutationSelection = createSelectionObject(schemaSDL);
+// // Simulate a root mutation object
+// mutationSelection.createUser = { id: true, name: true, email: true };
 
-const query5 = buildQuery(schemaSDL, mutationSelection, { 
-  operationType: 'mutation',
-  operationName: 'CreateNewUser'
-});
-console.log(query5); 
+// const query5 = buildQuery(schemaSDL, mutationSelection, { 
+//   operationType: 'mutation',
+//   operationName: 'CreateNewUser'
+// });
+// console.log(query5); 
