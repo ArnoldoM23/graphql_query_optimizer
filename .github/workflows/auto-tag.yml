@@ -1,0 +1,46 @@
+name: Auto Tag on PR Merge
+
+on:
+  pull_request:
+    types: [closed]
+    branches:
+      - main
+
+jobs:
+  tag:
+    if: github.event.pull_request.merged == true
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Configure Git
+        run: |
+          git config --global user.name 'GitHub Actions'
+          git config --global user.email 'github-actions@github.com'
+
+      - name: Get latest tag
+        id: get_latest_tag
+        run: |
+          latest_tag=$(git describe --tags --abbrev=0 2>/dev/null || echo "v0.0.0")
+          echo "latest_tag=$latest_tag" >> $GITHUB_OUTPUT
+
+      - name: Bump version
+        id: bump_version
+        run: |
+          current_version=${latest_tag#v}
+          IFS='.' read -r -a version_parts <<< "$current_version"
+          major="${version_parts[0]}"
+          minor="${version_parts[1]}"
+          patch="${version_parts[2]}"
+          
+          # Increment patch version
+          new_patch=$((patch + 1))
+          new_version="v$major.$minor.$new_patch"
+          echo "new_version=$new_version" >> $GITHUB_OUTPUT
+
+      - name: Create and push tag
+        run: |
+          git tag -a ${{ steps.bump_version.outputs.new_version }} -m "Release ${{ steps.bump_version.outputs.new_version }}"
+          git push origin ${{ steps.bump_version.outputs.new_version }} 

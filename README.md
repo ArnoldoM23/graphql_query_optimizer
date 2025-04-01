@@ -230,6 +230,30 @@ Convenience function that combines `createSelectionObject` and `buildQuery`.
 
 Contributions are welcome! Please read our [Contributing Guide](CONTRIBUTING.md) for details on our code of conduct and the process for submitting pull requests.
 
+## Versioning
+
+This project follows [Semantic Versioning](https://semver.org/) (SemVer) for versioning. For the versions available, see the [tags on this repository](https://github.com/ArnoldoM23/graphql_query_optimizer/tags).
+
+### Release Process
+
+1. The project uses automated versioning through GitHub Actions
+2. When a pull request is merged to the main branch:
+   - The patch version is automatically incremented
+   - A new tag is created and pushed to the repository
+   - The tag format follows the pattern `vX.Y.Z` where:
+     - X is the major version (breaking changes)
+     - Y is the minor version (new features, non-breaking)
+     - Z is the patch version (bug fixes, non-breaking)
+
+### Manual Tagging
+
+For major or minor version updates, you can manually create and push a tag:
+
+```bash
+git tag -a vX.Y.Z -m "Release vX.Y.Z"
+git push origin vX.Y.Z
+```
+
 ## Testing
 
 ```bash
