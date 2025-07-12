@@ -2,7 +2,7 @@
  * @fileoverview
  * Tests for the createSelectionObject function.
  */
-import createSelectionObject, { SelectionObject } from '../src/createSelectionObject';
+import { createSelectionObject, SelectionObject } from '../src/createSelectionObject';
 import { describe, test, expect, jest } from '@jest/globals';
 
 // Test schema with various GraphQL type constructs
